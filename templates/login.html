@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SServiceOS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+                <h1 class="title">SServiceOS</h1>
+            </div>
+            
+            <div class="login-form">
+                <h2>Login</h2>
+
+                {% if error %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="nome" name="nome" placeholder="Nome de usuário" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="senha" name="senha" placeholder="Senha" required>
+                            <button type="button" class="toggle-password" aria-label="Mostrar senha">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="submit" class="btn-primary" id="loginButton">
+                            <span class="button-text">Entrar</span>
+                            <span class="button-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('senha');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        // Loading state on form submit
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const button = document.getElementById('loginButton');
+            button.disabled = true;
+            button.querySelector('.button-text').style.display = 'none';
+            button.querySelector('.button-loader').style.display = 'inline-block';
+        });
+
+        // Validação em tempo real
+        document.getElementById('nome').addEventListener('input', function() {
+            const nome = this.value.trim();
+            const feedback = document.getElementById('nome-feedback');
+            
+            if (nome.length < 3) {
+                this.classList.add('input-error');
+                feedback.textContent = 'Nome deve ter pelo menos 3 caracteres';
+                feedback.className = 'feedback-message error';
+            } else {
+                this.classList.remove('input-error');
+                feedback.textContent = '';
+                feedback.className = 'feedback-message';
+            }
+        });
+
+        document.getElementById('senha').addEventListener('input', function() {
+            const senha = this.value;
+            const feedback = document.getElementById('senha-feedback');
+            
+            if (senha.length < 6) {
+                this.classList.add('input-error');
+                feedback.textContent = 'Senha deve ter pelo menos 6 caracteres';
+                feedback.className = 'feedback-message error';
+            } else {
+                this.classList.remove('input-error');
+                feedback.textContent = '';
+                feedback.className = 'feedback-message';
+            }
+        });
+
+        // Dark mode toggle
+        const darkModeToggle = document.createElement('div');
+        darkModeToggle.innerHTML = `
+            <button id="darkModeToggle" class="dark-mode-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        `;
+        document.body.appendChild(darkModeToggle);
+
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+
+        // Verificar preferência salva
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('#darkModeToggle i').classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+
+</html>
